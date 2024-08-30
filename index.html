@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WikiTube</title>
+    <link rel="stylesheet" href="css/animate.min.css">
+    <link rel="stylesheet" href="CSS/main.css">
+</head>
+
+
+<body onload="onInit()">
+
+    <div class="content-wrapper">
+        <main class="main-content">
+            <div class="modal-overlay"></div>
+
+            <div class="modal-container hidden">
+            </div>
+
+            <header>
+                <div class="sub-header">
+                    <div class="logo">WikiTube</div>
+                </div>
+            </header>
+
+            <article>
+                <form>
+                    <input type="text" id="search-input" name="search-input" placeholder="Search">
+                    <button class="submit-btn"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                </form>
+            </article>
+
+            <article class="loader player-loader">
+                <div class="ball ball1"></div>
+                <div class="ball ball2"></div>
+                <div class="ball ball3"></div>
+            </article>
+
+            <section class="main-container">
+                <article class="videos-container"></article>
+                <article class="player-container">
+                    <iframe width="560" height="315" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </article>
+                <article class="wiki-container"></article>
+            </section>
+        </main>
+    </div>
+
+    <footer>
+        <div></div>
+        <div>Copyright
+            <i class="fa-regular fa-copyright"></i>
+            2024<span data-i18n="footerBy">by Guy Mor</span>
+        </div>
+        <a></a>
+    </footer>
+
+    <script src="https://kit.fontawesome.com/75cbaaf481.js" crossorigin="anonymous"></script>
+    <script src="LIB/jquery-3.7.1.js"></script>
+    <script src="JS/util.js"></script>
+    <script src="JS/service.js"></script>
+    <script src="JS/controller.js"></script>
+
+</body>
+
+</html>

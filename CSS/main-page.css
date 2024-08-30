@@ -1,0 +1,170 @@
+.main-content {
+    position: relative;
+}
+
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    cursor: pointer;
+    pointer-events: none;
+    z-index: 10;
+
+    transition: background-color 600ms;
+}
+
+.overlay-on {
+    background-color: rgba(0, 0, 0, 0.5);
+    pointer-events: auto;
+}
+
+.modal-container {
+    position: absolute;
+
+    padding: 0.75em;
+    margin-inline: 0.75em;
+    margin-block-end: 1em;
+
+    height: fit-content;
+    width: fit-content;
+
+    top: 150px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    background-color: rgb(243, 243, 243);
+    border: 2px solid rgba(0, 0, 0, 0.258);
+    border-radius: 5px;
+    box-shadow:
+        1px 1px 5px 0px rgba(0, 0, 0, 0.1);
+
+    z-index: 20;
+}
+
+.modal-container>div {
+    padding-block: 1em;
+    padding-inline: 1em;
+
+    width: 200px;
+    height: 200px;
+
+    background-color: rgb(255, 255, 255);
+    border: 3.5px solid rgba(0, 0, 0, 0.158);
+    border-radius: 7px;
+}
+
+.main-content>article {
+    margin-block-start: 0.5em;
+    margin-block-end: 1em;
+
+    font-size: 1.5em;
+    font-weight: 500;
+}
+
+.main-content>article input {
+    margin-inline-start: 0.5em;
+    padding-inline: 0.5em;
+    padding-block: 0.5em;
+
+    font-size: 0.75em;
+
+    background-color: rgb(250, 250, 250);
+    border: 2px solid rgba(0, 0, 0, 0.258);
+    border-radius: 5px;
+}
+
+.main-content>article button {
+    margin-inline-start: 0.25em;
+    padding-block: 0.3em;
+    padding-inline: 0.6em;
+
+    font-size: 0.85em;
+    background-color: rgb(240, 240, 240);
+    border: 2px solid rgba(0, 0, 0, 0.258);
+    border-radius: 5px;
+
+    cursor: pointer;
+}
+
+.main-content>article button:hover {
+    background-color: rgb(230, 230, 230);
+}
+
+.main-container {
+    padding: 0.75em;
+    margin-inline: 0.75em;
+    margin-block-end: 1em;
+
+    width: 1000px;
+
+    background-color: rgb(243, 243, 243);
+    border: 2px solid rgba(0, 0, 0, 0.258);
+    border-radius: 5px;
+    box-shadow:
+        1px 1px 5px 0px rgba(0, 0, 0, 0.1);
+}
+
+.videos-container,
+.player-container {
+    padding: 1em;
+    width: 100%;
+    /* min-height: 500px; */
+
+    /* background-color: rgb(243, 243, 243);
+    border: 2px solid rgba(0, 0, 0, 0.258);
+    border-radius: 5px;
+    box-shadow:
+        1px 1px 5px 0px rgba(0, 0, 0, 0.1); */
+}
+
+.videos-container>div {
+    position: relative;
+
+    width: 320px;
+
+    background-color: rgb(240, 240, 240);
+    border: 2px solid rgba(0, 0, 0, 0.258);
+    border-radius: 5px;
+    box-shadow:
+        1px 1px 5px 0px rgba(0, 0, 0, 0.1);
+
+    transition: background-color 200ms;
+}
+
+.videos-container>div:hover {
+    background-color: rgb(250, 250, 250);
+    cursor: pointer;
+}
+
+.videos-container img {
+    /* width: 100%; */
+    /* height: 180px; */
+}
+
+.videos-container>div>a {
+    padding-inline: 0.25em;
+
+    font-size: 1.5em;
+    font-weight: 600;
+    text-align: center;
+}
+
+.videos-container>div>span {
+    margin-block-end: 0.5em;
+    padding-inline: 0.5em;
+
+    width: 320px;
+
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.player-container>iframe {
+    width: 574px;
+
+    background-color: rgb(240, 240, 240);
+    border: 2px solid rgba(0, 0, 0, 0.258);
+    border-radius: 5px;
+    box-shadow:
+        1px 1px 5px 0px rgba(0, 0, 0, 0.1);
+}
