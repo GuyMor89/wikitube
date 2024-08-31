@@ -19,12 +19,24 @@ header {
 .logo {
     padding-block: 0.1em;
     padding-inline: 0.4em;
+
     font-size: 3em;
     font-weight: 500;
-    font-family: Eurofurencer;
+    font-family: Youtube-Regular;
+    line-height: 1;
     font-weight: 800;
+
     cursor: pointer;
+
     transition: text-shadow 500ms;
+}
+
+.logo:focus {
+    outline: none;
+}
+
+.logo>span {
+    color: rgb(255, 23, 23);
 }
 
 .logo:hover {

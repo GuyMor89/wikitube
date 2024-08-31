@@ -23,3 +23,8 @@
     font-family: Playwrite-Regular;
     src: url(fonts/Playwrite.ttf);
 }
+
+@font-face {
+    font-family: Youtube-Regular;
+    src: url(fonts/YouTube-Regular.otf);
+}

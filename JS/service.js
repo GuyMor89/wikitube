@@ -1,56 +1,78 @@
 'use strict'
 
 function retrieveData(API) {
-    $('.loader').css('opacity', '1')
+    showLoader()
 
-    let searchFound = false
+    let arrayInCache = false
+    let dataFromStorage
+    let dataKeyword
 
-    const videosData = loadFromStorage('videosData') || []
-
-    videosData.forEach(videoArray => {
-        if (videoArray[0].search === searchValue) {
-            searchFound = true
+    if (API.includes('youtube')) {
+        dataFromStorage = loadFromStorage('videosData') || []
+        dataKeyword = 'videos'
+    } else {
+        dataFromStorage = loadFromStorage('wikiData') || []
+        dataKeyword = 'wiki'
+    }
+    dataFromStorage.forEach(dataArray => {
+        if (dataArray[0].search === searchValue) {
+            arrayInCache = true
         }
     })
-
-    if (!searchFound) {
+    if (!arrayInCache) {
         fetch(API)
             .then(response => response.json())
-            .then(data => recieveData(data))
-            .catch(() => $('.loader').css('opacity', '0'))
+            .then(data => recieveData(data, dataKeyword))
+            .catch(() => hideLoader())
     } else {
-        renderData()
+        renderData(dataKeyword)
     }
-
-    // $.get(API, (data) => {
-    //     recieveData(data)
-    // })
-    //     .fail(() => {
-    //     })
 }
 
 function saveData(data) {
-    const videosData = loadFromStorage('videosData') || []
-    let arrayFound = false
 
-    const { items } = data
-    const videosDatatoPush = items.map(({ id, snippet }) => ({ search: searchValue, id: id.videoId, title: snippet.title, description: snippet.description, thumbnail: snippet.thumbnails.medium.url }))
+    let arrayInCache = false
+    let dataFromStorage
+    let dataKeyword
+    let dataArrayToPush
 
-    videosData.forEach(videoArray => {
-        if (videoArray[0].search === videosDatatoPush[0].search) {
-            arrayFound = true
+    if (data.kind) {
+        dataKeyword = 'videosData'
+        dataFromStorage = loadFromStorage(dataKeyword) || []
+
+        const { items } = data
+        dataArrayToPush = items.map(({ id, snippet }) => ({ search: searchValue, id: id.videoId, title: snippet.title, description: snippet.description, thumbnail: snippet.thumbnails.medium.url }))
+    } else {
+        dataKeyword = 'wikiData'
+        dataFromStorage = loadFromStorage(dataKeyword) || []
+
+        const { query } = data
+        const { search } = query
+        dataArrayToPush = search.map(({ title, snippet }) => ({ search: searchValue, title, snippet }))
+    }    
+
+    dataFromStorage.forEach(dataArray => {        
+        if (dataArray[0].search === dataArrayToPush[0].search) {
+            arrayInCache = true
         }
     })
-    if (!arrayFound) {
-        videosData.push(videosDatatoPush)
-            saveToStorage('videosData', videosData)
+    if (!arrayInCache) {        
+        dataFromStorage.push(dataArrayToPush)
+        saveToStorage(dataKeyword, dataFromStorage)
     }
 }
 
-function getVideos() {
-    let videosData = loadFromStorage('videosData')
+function getData(type) {
+    let dataFromStorage
 
-    videosData = videosData.filter(videoArray => videoArray[0].search === searchValue)
+    if (type === 'videos') {
+        dataFromStorage = loadFromStorage('videosData')
+    } else {
+        dataFromStorage = loadFromStorage('wikiData')
+    }
+    dataFromStorage = dataFromStorage.filter(dataArray => dataArray[0].search === searchValue)
 
-    return videosData.flat()
+    return dataFromStorage.flat()
 }
+
+
