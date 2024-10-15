@@ -1,4 +1,9 @@
-'use strict'
+import { retrieveData } from "./service.js"
+import { storageService } from "./util.js"
+
+export { showLoader, hideLoader, searchValue }
+
+window.onInit = onInit
 
 // const API_KEY = 'AIzaSyAidkPm4wJUPqkrTvMJf9zRE5Bnt9fDo5w'
 const API_KEY = 'AIzaSyDXLCT1WhcKet2-VBh_v4CZmhZYxrOdEaE'
@@ -10,26 +15,23 @@ let searchValue = 'Everest'
 function onInit() {
     requestData()
     addSearchListener()
-    addVideoListener()
     addModalListeners()
     addColorListeners()
+    addVideoListener()
     renderPreviousSearches()
 }
 
 function requestData() {
     retrieveData(`${YOUTUBE_API}&q=${searchValue}`)
+        .then(result => renderData(result[0], result[1]))
     retrieveData(`${WIKIPEDIA_API}&srsearch=${searchValue}&format=json`)
+        .then(result => renderData(result[0], result[1]))
 }
 
-function recieveData(data, type) {
-    saveData(data)
-    renderData(type)
-}
-
-function renderData(type) {
+function renderData(array, type) {
     if (type === 'videos') {
-        const videosHTML = getData('videos').map(({ title, description, thumbnail }, index) => `
-        <div class="video${index}">
+        const videosHTML = array.map(({ id, title, description, thumbnail }, index) => `
+        <div id="${id}">
             <img src="${thumbnail}">
             <a>${title}</a>
             <span>${description}
@@ -43,12 +45,12 @@ function renderData(type) {
 
         $('.videos-container').html(videosHTML)
 
-        const videoURL = `https://www.youtube.com/embed/${getData('videos')[0].id}`
+        const videoURL = `https://www.youtube.com/embed/${array[0].id}`
         $('.player-container>iframe').attr('src', videoURL)
 
         hideLoader()
     } else {
-        const wikiHTML = getData('wiki').map(({ title, snippet }, index) => `
+        const wikiHTML = array.map(({ title, snippet }, index) => `
         <div class="wiki${index}">
             <span onclick="window.open('https://en.wikipedia.org/wiki/${title}', '_blank')">${title}</span>
             <p>${snippet}</p>
@@ -75,11 +77,14 @@ function addSearchListener() {
         searchValue = $('#search-input').val()
         $('#search-input').val('')
 
-        let savedSearches = loadFromStorage('savedSearches') || []
-        if (!savedSearches.some(search => search === searchValue)) savedSearches.push(searchValue)
-        saveToStorage('savedSearches', savedSearches)
-
-        renderPreviousSearches()
+        let savedSearches = storageService.query('savedSearches') || []
+        savedSearches
+            .then(savedSearches => {
+                if (!savedSearches.some(search => search === searchValue)) {
+                    return storageService.post('savedSearches', { search: searchValue })
+                }
+            })
+            .then(() => renderPreviousSearches())
         requestData()
     })
     $('.saved-searches').on('click', 'span', (event) => {
@@ -98,8 +103,8 @@ function addSearchListener() {
             confirmButtonText: "Yes, delete!"
         }).then((result) => {
             if (result.isConfirmed) {
-                saveToStorage('savedSearches', [])
-                $('.saved-searches').html('')
+                storageService.clear('savedSearches')
+                    .then(() => renderPreviousSearches())
                 Swal.fire({
                     title: "Deleted!",
                     text: "Previous searches have been deleted.",
@@ -112,9 +117,8 @@ function addSearchListener() {
 
 function addVideoListener() {
     $('.videos-container').on('click', 'div', (event) => {
-        const videoID = $(event.currentTarget).attr('class').match(/video(\d+)/)[1]
-        const videoObject = getData('videos').filter((video, index) => index === +videoID)
-        const videoURL = `https://www.youtube.com/embed/${videoObject[0].id}`
+        const videoID = event.currentTarget.id
+        const videoURL = `https://www.youtube.com/embed/${videoID}`
 
         $('.player-container>iframe').attr('src', videoURL)
         $('.logo').focus()
@@ -139,13 +143,15 @@ function addColorListeners() {
 }
 
 function renderPreviousSearches() {
-    let savedSearches = loadFromStorage('savedSearches') || []
+    let savedSearches = storageService.query('savedSearches') || []
 
-    const savedSearchHTML = savedSearches.map(search => `
-        <span>${search}</span>
-        `)
-
-    $('.saved-searches').html(savedSearchHTML)
+    savedSearches
+        .then(savedSearches => {
+            const savedSearchHTML = savedSearches.length > 0
+                ? savedSearches.map(({ search }) => `<span>${search}</span>`)
+                : '<i>No searches yet..</i>'
+            $('.saved-searches').html(savedSearchHTML)
+        })
 }
 
 function showLoader() {
@@ -153,11 +159,13 @@ function showLoader() {
         setTimeout(() => {
             $(loader).css('visibility', 'visible')
         }, 500);
-    })}
+    })
+}
 
 function hideLoader() {
     $('.loader').each((i, loader) => {
         setTimeout(() => {
             $(loader).css('visibility', 'hidden')
         }, 500);
-    })}
+    })
+}

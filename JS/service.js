@@ -1,78 +1,55 @@
-'use strict'
+import { storageService } from "./util.js"
+import { showLoader, hideLoader, searchValue } from "./controller.js"
+
+export { retrieveData }
+
+const storageKeys = { videos: 'videosData', wiki: 'wikiData' }
 
 function retrieveData(API) {
     showLoader()
 
-    let arrayInCache = false
-    let dataFromStorage
     let dataKeyword
+    let storageKey
 
     if (API.includes('youtube')) {
-        dataFromStorage = loadFromStorage('videosData') || []
+        storageKey = storageKeys.videos
         dataKeyword = 'videos'
     } else {
-        dataFromStorage = loadFromStorage('wikiData') || []
+        storageKey = storageKeys.wiki
         dataKeyword = 'wiki'
     }
-    dataFromStorage.forEach(dataArray => {
-        if (dataArray[0].search === searchValue) {
-            arrayInCache = true
-        }
-    })
-    if (!arrayInCache) {
-        fetch(API)
-            .then(response => response.json())
-            .then(data => recieveData(data, dataKeyword))
-            .catch(() => hideLoader())
-    } else {
-        renderData(dataKeyword)
-    }
+
+    return storageService.query(storageKey)
+        .then(result => result.filter(videoArray => videoArray[searchValue]))
+        .then(result => {
+            if (result.length > 0) {
+                return [result[0][searchValue], dataKeyword]
+            } else {
+                return fetch(API)
+                    .then(response => response.json())
+                    .then(data => {
+                        let savedData = saveData(data)
+                        let dataToSave = { [searchValue]: savedData }
+                        storageService.post(storageKey, dataToSave)
+                        return [savedData, dataKeyword]
+                    })
+                    .catch(() => hideLoader())
+            }
+        })
 }
 
 function saveData(data) {
-
-    let arrayInCache = false
-    let dataFromStorage
-    let dataKeyword
     let dataArrayToPush
 
     if (data.kind) {
-        dataKeyword = 'videosData'
-        dataFromStorage = loadFromStorage(dataKeyword) || []
-
         const { items } = data
-        dataArrayToPush = items.map(({ id, snippet }) => ({ search: searchValue, id: id.videoId, title: snippet.title, description: snippet.description, thumbnail: snippet.thumbnails.medium.url }))
+        dataArrayToPush = items.map(({ id, snippet }) => ({ id: id.videoId, title: snippet.title, description: snippet.description, thumbnail: snippet.thumbnails.medium.url }))
     } else {
-        dataKeyword = 'wikiData'
-        dataFromStorage = loadFromStorage(dataKeyword) || []
-
         const { query } = data
         const { search } = query
-        dataArrayToPush = search.map(({ title, snippet }) => ({ search: searchValue, title, snippet }))
-    }    
-
-    dataFromStorage.forEach(dataArray => {        
-        if (dataArray[0].search === dataArrayToPush[0].search) {
-            arrayInCache = true
-        }
-    })
-    if (!arrayInCache) {        
-        dataFromStorage.push(dataArrayToPush)
-        saveToStorage(dataKeyword, dataFromStorage)
+        dataArrayToPush = search.map(({ title, snippet }) => ({ title, snippet }))
     }
-}
-
-function getData(type) {
-    let dataFromStorage
-
-    if (type === 'videos') {
-        dataFromStorage = loadFromStorage('videosData')
-    } else {
-        dataFromStorage = loadFromStorage('wikiData')
-    }
-    dataFromStorage = dataFromStorage.filter(dataArray => dataArray[0].search === searchValue)
-
-    return dataFromStorage.flat()
+    return dataArrayToPush
 }
 
 
